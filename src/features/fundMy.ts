@@ -66,10 +66,14 @@ const getMyFundDetails = async () => {
 
 const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[], searchWord = '') => {
   let sumIncome = 0;
+  let totalPrice = 0;
+  let estimateTotalPrice = 0;
   let cbList = dbList.map(db => {
     const fund = db.data;
     const rate = fund.nowJJJZ / fund.yesJJJZ - 1;
     const income = fund.holdCount > 0 ? rate * fund.holdCount * fund.yesJJJZ : 0;
+    totalPrice += fund.holdCount > 0 ? fund.yesJJJZ * fund.holdCount : 0;
+    estimateTotalPrice += fund.holdCount > 0 ? fund.nowJJJZ * fund.holdCount : 0;
     sumIncome += income;
     const cb: CallbackListItem = {
       fundCode: fund.id,
@@ -92,8 +96,8 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[], searchWord = '') => {
   } else {
     cbList = [
       {
-        title: `今日总收益 ${dbList.every(x => !x.data.isValuation) ? '✅' : ''}`,
-        description: `￥${sumIncome.toFixed(2)}`,
+        title: `整体情况 ${dbList.every(x => !x.data.isValuation) ? '✅' : ''}`,
+        description: `总价：￥${totalPrice.toFixed(2)} 预估总价：￥${estimateTotalPrice.toFixed(2)} 今日总收益：￥${sumIncome.toFixed(2)}`,
         icon: sumIncome >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
         searchWord,
       },
